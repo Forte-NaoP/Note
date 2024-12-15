@@ -8,6 +8,7 @@ mod trie;
 mod scc;
 mod segtree;
 mod graph;
+mod kmp;
 
 fn main() {
     let offline = true;
