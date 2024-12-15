@@ -1,38 +1,42 @@
 from typing import List
 
-def encode(s):
-    val = 0
-    for c in s:
-        val <<= 5
-        val += ord(c) - ord('A') + 1
-    return val
-
-def decode(val):
-    s = []
-    while val > 0:
-        s.append(chr((val & 31) + ord('A') - 1))
-        val >>= 5
-    s.reverse()
-    return ''.join(s)
-
 class Node:
     def __init__(self):
-        self.link: List[Node, None] = [None for _ in range(26)]
+        self.next: List[Node | None] = [None] * 26
         self.end = False
+        self.count = 0
 
-    def insert(self, s: int):
-        if not s:
-            self.end = True
-            return
-        idx = (s & 31) - 1
-        if not self.link[idx]:
-            self.link[idx] = Node()
-        self.link[idx].insert(s >> 5)
+class Trie:
+    def __init__(self):
+        self.root = Node()
+
+    def insert(self, s: str):
+        node = self.root
+        for ch in s:
+            ch = ord(ch) - ord('a')
+            if not node.next[ch]:
+                node.next[ch] = Node()
+            node = node.next[ch]
+            node.count += 1
+        node.end = True
     
-    def find(self, s: int):
-        if not s:
-            return True if self.end else False
-        idx = (s & 31) - 1
-        if not self.link[idx]:
-            return False
-        return self.link[idx].find(s >> 5)
+    def search(self, s:str):
+        node = self.root
+        for i, ch in enumerate(s):
+            ch = ord(ch) - ord('a')
+            if node.next[ch].count == 1:
+                return i + 1
+            node = node.next[ch]
+        return len(s)
+
+    def print(self):
+        result = []
+        self.dfs(self.root, "", result)
+        print(result)
+
+    def dfs(self, node, word, result):
+        if node.end:
+            result.append(word)
+        for i in range(26):
+            if node.next[i]:
+                self.dfs(node.next[i], word+str(chr(i+ord('a'))), result)
