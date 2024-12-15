@@ -2,6 +2,7 @@ use std::vec;
 
 struct SegTree {
     t: Vec<i64>,
+    base: usize
 }
 
 impl SegTree {
@@ -11,10 +12,10 @@ impl SegTree {
             b <<= 1;
             n >>= 1;
         }
-        SegTree { t: vec![0; b << 1] }
+        SegTree { t: vec![0; b << 1], base: b }
     }
 
-    fn update(&mut self, idx: usize, s: usize, e: usize, node: usize) {
+    fn update_tb(&mut self, idx: usize, s: usize, e: usize, node: usize) {
         if (idx < s) || (e < idx) {
             return;
         }
@@ -23,9 +24,19 @@ impl SegTree {
             return
         }
         let mid = (s + e) / 2;
-        self.update(idx, s, mid, node * 2);
-        self.update(idx, mid + 1, e, node * 2 + 1);
+        self.update_tb(idx, s, mid, node * 2);
+        self.update_tb(idx, mid + 1, e, node * 2 + 1);
         self.t[node] = self.t[node * 2] + self.t[node * 2 + 1];
+    }
+
+    fn update_bt(&mut self, mut idx: usize, val: i64) {
+        idx += self.base;
+        let erase = self.t[idx];
+        while idx > 0 {
+            self.t[idx] ^= erase;
+            self.t[idx] |= val;
+            idx >>= 1;
+        }
     }
 
     fn query(&self, l: usize, r: usize, s: usize, e: usize, node: usize) -> i64 {
@@ -37,5 +48,26 @@ impl SegTree {
         }
         let mid = (s + e) / 2;
         return self.query(l, r, s, mid, node * 2) + self.query(l, r, mid + 1, e, node * 2 + 1);
+    }
+
+    fn query_bt(&self, mut l: usize, mut r: usize) -> i64 {
+        let mut ret = 0;
+        l += self.base;
+        r += self.base;
+
+        while l <= r {
+            if l & 1 == 1 {
+                ret |= self.t[l];
+                l += 1;
+            }
+            if r & 1 == 0 {
+                ret |= self.t[r];
+                r -= 1;
+            }
+            l >>= 1;
+            r >>= 1;
+        }
+
+        ret
     }
 }
