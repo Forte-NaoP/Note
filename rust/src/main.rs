@@ -9,6 +9,7 @@ mod scc;
 mod segtree;
 mod graph;
 mod kmp;
+mod manacher;
 
 fn main() {
     let offline = true;
