@@ -53,3 +53,8 @@ SpawnActor는 스폰한 인스턴스의 참조를 반환한다. 해당 참조를
   - Forward Vector: 객체의 정면 방향을 월드 좌표계에서 나타낸 **단위 벡터**
   - Rotator : 객체의 회전을 표한하는 벡터  ![alt text](./capture/rotator.png)
   - 물체를 기준으로 바라봤을 때 좌우 회전(Z축 중심)을 Yaw, 상하 회전(Y축 중심)을 Pitch, 물체의 수평 기울기(X축 중심)을 Roll이라고 한다.
+
+## Pure Function
+
+- side effect가 없는 함수
+- BP 상에서 실행 핀이 없는 함수
