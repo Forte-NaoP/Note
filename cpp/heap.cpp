@@ -16,6 +16,7 @@ struct heap {
 
     heap(bool is_max, int size) : is_max(is_max), max_size(size) {
         v = new T[size+1];
+        cnt = 0;
     }
 
     ~heap() {
@@ -44,9 +45,23 @@ struct heap {
         return cnt == 0;
     }
 
-    void push(T x) {
+    void push(const T& x) {
         if (cnt >= max_size) throw out_of_range("heap is full");
         v[++cnt] = x;
+
+        int cur = cnt;
+        int parent = cnt / 2;
+
+        while (cur > 1 && cmp(v[cur], v[parent])) {
+            swap(v[cur], v[parent]);
+            cur = parent;
+            parent /= 2;
+        }
+    }
+
+    void push(T&& x) {
+        if (cnt >= max_size) throw out_of_range("heap is full");
+        v[++cnt] = move(x);
 
         int cur = cnt;
         int parent = cnt / 2;
