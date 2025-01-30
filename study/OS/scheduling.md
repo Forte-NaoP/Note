@@ -3,7 +3,7 @@
 ## Scheduling
 
 - 자원을 할당받을 프로세스를 결정하는 과정
-- ![process_5-state](./5state.png)
+![process_5-state](./5state.png)
 Process 5-state model
 - 다음 경우에 발생
   1. Running -> Blocked (Waiting)
