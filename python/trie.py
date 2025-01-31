@@ -4,7 +4,6 @@ class Node:
     def __init__(self):
         self.next: List[Node | None] = [None] * 26
         self.end = False
-        self.count = 0
 
 class Trie:
     def __init__(self):
@@ -17,17 +16,16 @@ class Trie:
             if not node.next[ch]:
                 node.next[ch] = Node()
             node = node.next[ch]
-            node.count += 1
         node.end = True
     
     def search(self, s:str):
         node = self.root
-        for i, ch in enumerate(s):
+        for ch in s:
             ch = ord(ch) - ord('a')
-            if node.next[ch].count == 1:
-                return i + 1
+            if not node.next[ch]:
+                return False
             node = node.next[ch]
-        return len(s)
+        return node.end
 
     def print(self):
         result = []

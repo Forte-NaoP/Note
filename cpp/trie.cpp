@@ -8,103 +8,69 @@
 
 using namespace std;
 
-struct Node {
-    Node* child[26] = {};
-    int leaf = 0;
-    int cnt[26] = {};
+struct TrieNode {
+    TrieNode* children[26]; // 26개의 자식 노드
+    bool isEnd; // 단어의 끝을 나타내는 플래그
 
-    ~Node() {
-        for (int i = 0; i < 26; ++i) {
-            if (child[i]) {
-                delete child[i];
+    TrieNode() {
+        isEnd = false;
+        for (int i = 0; i < 26; i++) children[i] = nullptr;
+    }
+};
+
+class Trie {
+private:
+    TrieNode* root;
+
+public:
+    Trie() { root = new TrieNode(); }
+
+    // 단어 삽입
+    void insert(const string& word) {
+        TrieNode* node = root;
+        for (char c : word) {
+            int index = c - 'A';
+            if (!node->children[index]) {
+                node->children[index] = new TrieNode();
             }
+            node = node->children[index];
         }
+        node->isEnd = true;
     }
 
-    int insert(const char* key, const bool allow_dup = false) {
-        int result = 0;
-        if (*key == '\0') {
-            if (leaf == 0 || allow_dup) leaf += 1;
-            result = leaf;
-        } else {
-            int idx = *key - 'a';
-            if (child[idx] == nullptr) child[idx] = new Node();
-            result = child[idx]->insert(key + 1, allow_dup);
-            if (result > 0) cnt[idx] += 1;
+    // 단어 검색
+    bool search(const string& word) {
+        TrieNode* node = root;
+        for (char c : word) {
+            int index = c - 'A';
+            if (!node->children[index]) return false;
+            node = node->children[index];
         }
-        return result;
+        return node->isEnd;
     }
 
-    Node* find(const char* key) {
-        if (*key == '\0') return this;
-        int idx = *key - 'a'; 
-        if (child[idx] == nullptr) return nullptr;
-        return child[idx]->find(key + 1);
+    // 접두사 검색
+    bool startsWith(const string& prefix) {
+        TrieNode* node = root;
+        for (char c : prefix) {
+            int index = c - 'A';
+            if (!node->children[index]) return false;
+            node = node->children[index];
+        }
+        return true;
     }
 
-    bool find_k(int& k, char* ans, int idx) {
-        if (leaf) {
-            if (--k == 0) {
-                ans[idx] = '\0';
-                return true;
-            }
-        }
-
-        for (int i=0; i<26; ++i) {
-            if (child[i] != nullptr) {
-                if (k > cnt[i]) k -= cnt[i];
-                else {
-                    ans[idx] = i + 'a';
-                    if (child[i]->find_k(k, ans, idx + 1)) return true;
-                }
-            }
-        }
-        return false;
+    ~Trie() {
+        deleteNode(root);
     }
 
-    int find_cnt(const char* key) {
-        if (*key == '\0') return leaf;
-
-        int idx = *key == '?' ? 0 : *key - 'a';
-        int end = *key == '?' ? 26 : idx + 1;
-        int r = 0;
-        for (; idx<end; ++idx) {
-            if (child[idx] != nullptr) {
-                int tr = child[idx]->find_cnt(key + 1);
-                r += tr;
-            } 
+private:
+    // 동적 메모리 해제 (트라이 트리 전체 삭제)
+    void deleteNode(TrieNode* node) {
+        if (!node) return;
+        for (int i = 0; i < 26; i++) {
+            deleteNode(node->children[i]);
         }
-        return r;
-    }
-
-    int remove(const char* key) {
-        int r = 0;
-        if (*key == '\0') {
-            r = leaf;
-            leaf = 0;
-            return r;
-        } else {
-            int idx = *key == '?' ? 0 : *key - 'a';
-            int end = *key == '?' ? 26 : idx + 1;
-            for (; idx<end; ++idx) {
-                if (child[idx] != nullptr) {
-                    int tr = child[idx]->remove(key + 1);
-                    r += tr;
-                    cnt[idx] -= tr;
-                } 
-            }
-        }
-        return r;
-    }
-
-    void printAll(const std::string& prefix = "") {
-        if (leaf) {
-            std::cout << prefix << std::endl;
-        }
-        for (int i = 0; i < 26; ++i) {
-            if (child[i] != nullptr) {
-                child[i]->printAll(prefix + char(i + 'a'));
-            }
-        }
+        delete node;
     }
 };
