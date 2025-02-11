@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <cmath>
+#include <queue>
 
 using namespace std;
 
@@ -15,17 +16,36 @@ int parent[10001][MAX_H];
 int depth[10001];
 int sub_cnt[10001];
 
-int init_tree(int node, int ancestor) {
-    depth[node] = depth[ancestor] + 1;
+// int init_tree(int node, int ancestor) {
+//     depth[node] = depth[ancestor] + 1;
 
-    for (int& ch : graph[node]) {
-        if (ch != ancestor) {
+//     for (int& ch : graph[node]) {
+//         if (ch != ancestor) {
+//             parent[ch][0] = node;
+//             init_tree(ch, node);
+//         }
+//     }
+
+//     return 0;
+// }
+
+void init_tree(int root) {
+    deque<int> q;
+    depth[root] = 1;
+    parent[root][0] = 0;
+    q.push_back(root);
+
+    while (!q.empty()) {
+        int node = q.front();
+        q.pop_front();
+
+        for (int ch: graph[node]) {
+            if (ch == parent[node][0]) continue;
+            depth[ch] = depth[node] + 1;
             parent[ch][0] = node;
-            init_tree(ch, node);
+            q.push_back(ch);
         }
     }
-
-    return 0;
 }
 
 void search_parent(int n) {
@@ -76,7 +96,7 @@ int main() {
             graph[d].push_back(p);
         }
         
-        init_tree(1, 0);
+        init_tree(1);
         search_parent(v);
         int lca = find_lca(a, b);
         printf("#%d %d %d\n", i, lca, 0);
