@@ -162,6 +162,7 @@ const db = getFirestore(app);
     updatedAt: Timestamp.now()
   });
   ```
+- 기존에 존재하던 필드 중 data에 지정되지 않은 필드들은 값이 유지된다.
 
 ## 10. deleteDoc(docRef)
 
