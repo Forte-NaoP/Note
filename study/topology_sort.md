@@ -27,12 +27,12 @@ indegree = [0] * (n + 1)
 q = deque(filter(lambda x: indegree[x] == 0, range(1, n + 1)))
 
 while q:
-    cur = st.popleft()
-    print(q)
+    cur = q.popleft()
+    print(cur)
 
     if cur in graph:
         for nxt in graph[cur]:
             indegree[nxt] -= 1
             if indegree[nxt] == 0:
-                st.append(nxt)
+                q.append(nxt)
 ```
