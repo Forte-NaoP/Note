@@ -1,55 +1,45 @@
-fn encode(s: &str) -> i64 {
-    let mut ret = 0;
-    for c in s.chars() {
-        ret <<= 5;
-        ret |= c as i64 - 'A' as i64 + 1;
-    }
-    ret
+struct TrieNode {
+    children: [Option<Box<TrieNode>>; 26],
+    is_end: bool,
 }
 
-fn decode(mut n: i64) -> String {
-    let mut ret: Vec<char> = vec![];
-    while n > 0 {
-        ret.push(((n & 31) as u8 + 'A' as u8 - 1) as char);
-        n >>= 5;
+impl TrieNode {
+    fn new() -> Self {
+        Self {
+            children: Default::default(),
+            is_end: false,
+        }
     }
-    ret.reverse();
-    ret.iter().collect()
 }
 
-struct Trie {
-    next: [Option<Box<Trie>>; 26],
-    end: bool,
+pub struct Trie {
+    root: TrieNode,
 }
 
 impl Trie {
-    fn new() -> Self {
-        Trie {
-            next: Default::default(),
-            end: false,
-        }
+    pub fn new() -> Self {
+        Self { root: TrieNode::new() }
     }
 
-    fn insert(&mut self, s: i64) {
-        if s == 0 {
-            self.end = true;
-            return
+    pub fn insert(&mut self, word: &str) {
+        let mut node = &mut self.root;
+        for b in word.bytes() {
+            let idx = (b - b'a') as usize;
+            node = node.children[idx]
+                .get_or_insert_with(|| Box::new(TrieNode::new()));
         }
-        let c = (s & 31) as usize - 1;
-        if self.next[c].is_none() {
-            self.next[c] = Some(Box::new(Trie::new()));
-        }
-        self.next[c].as_mut().unwrap().insert(s >> 5);
+        node.is_end = true;
     }
 
-    fn find(&self, s: i64) -> bool {
-        if s == 0 {
-            return self.end
+    pub fn search(&self, word: &str) -> bool {
+        let mut node = &self.root;
+        for b in word.bytes() {
+            let idx = (b - b'a') as usize;
+            match &node.children[idx] {
+                Some(next) => node = next,
+                None => return false,
+            }
         }
-        let c = (s & 31) as usize - 1;
-        if self.next[c].is_none() {
-            return false
-        }
-        self.next[c].as_ref().unwrap().find(s >> 5)
+        node.is_end
     }
 }
